@@ -70,12 +70,15 @@
   }
 
   #animal-display {
-    font-size: 5.5rem;
-    line-height: 1;
-    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.15));
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center top;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.18);
     animation: float 3s ease-in-out infinite;
-    cursor: default;
-    user-select: none;
+    border: 4px solid #fff;
+    background: #e8f5e9;
   }
 
   @keyframes float {
@@ -420,7 +423,7 @@
 
   <div id="play-screen" style="display:none; flex-direction:column; align-items:center; gap:18px; width:100%;">
     <div id="animal-container">
-      <div id="animal-display">🐶</div>
+      <img id="animal-display" src="" alt="">
       <div id="funeral-scene">
         <div id="funeral-card">
           <div id="funeral-coffin">⚰️</div>
@@ -449,7 +452,7 @@
 <script>
 const PATIENTS = [
   {
-    animal: '🐶', name: 'Bruno the Dog',
+    animal: '🐶', name: 'Bruno the Dog', wikiTitle: 'Golden_Retriever',
     problem: 'He ate an entire chocolate cake and his tummy is in agony!',
     options: [
       { text: 'Induce vomiting and give activated charcoal', correct: true },
@@ -459,7 +462,7 @@ const PATIENTS = [
     ]
   },
   {
-    animal: '🐱', name: 'Princess the Cat',
+    animal: '🐱', name: 'Princess the Cat', wikiTitle: 'Cat',
     problem: 'She swallowed a hairball the size of a tennis ball!',
     options: [
       { text: 'Massage the area and give hairball remedy gel', correct: true },
@@ -469,7 +472,7 @@ const PATIENTS = [
     ]
   },
   {
-    animal: '🐰', name: 'Fluffy the Rabbit',
+    animal: '🐰', name: 'Fluffy the Rabbit', wikiTitle: 'Rabbit',
     problem: "She hasn't eaten in two days and her teeth are overgrown!",
     options: [
       { text: 'Trim the overgrown teeth and review her diet', correct: true },
@@ -479,7 +482,7 @@ const PATIENTS = [
     ]
   },
   {
-    animal: '🐹', name: 'Cheeks the Hamster',
+    animal: '🐹', name: 'Cheeks the Hamster', wikiTitle: 'Hamster',
     problem: "His cheek pouches are so stuffed he can't close his mouth!",
     options: [
       { text: 'Gently empty the pouches and check for injury', correct: true },
@@ -489,7 +492,7 @@ const PATIENTS = [
     ]
   },
   {
-    animal: '🐦', name: 'Tweety the Parrot',
+    animal: '🐦', name: 'Tweety the Parrot', wikiTitle: 'Parrot',
     problem: 'He flew into a window and his wing is drooping badly!',
     options: [
       { text: 'Splint the wing and keep him calm and warm', correct: true },
@@ -499,7 +502,7 @@ const PATIENTS = [
     ]
   },
   {
-    animal: '🐢', name: 'Shelly the Tortoise',
+    animal: '🐢', name: 'Shelly the Tortoise', wikiTitle: 'Tortoise',
     problem: "She's been sneezing for three days and her eyes are crusty!",
     options: [
       { text: 'Respiratory infection — antibiotics and warm humid environment', correct: true },
@@ -509,7 +512,7 @@ const PATIENTS = [
     ]
   },
   {
-    animal: '🦜', name: 'Mango the Macaw',
+    animal: '🦜', name: 'Mango the Macaw', wikiTitle: 'Macaw',
     problem: "He's been pulling out his own feathers and looks very stressed!",
     options: [
       { text: 'Buster collar, enrichment toys and a check for skin infection', correct: true },
@@ -519,7 +522,7 @@ const PATIENTS = [
     ]
   },
   {
-    animal: '🐠', name: 'Bubbles the Goldfish',
+    animal: '🐠', name: 'Bubbles the Goldfish', wikiTitle: 'Goldfish',
     problem: "He's floating sideways at the top of his tank!",
     options: [
       { text: 'Swim bladder issue — adjust diet and check water quality', correct: true },
@@ -529,7 +532,7 @@ const PATIENTS = [
     ]
   },
   {
-    animal: '🐍', name: 'Slithers the Snake',
+    animal: '🐍', name: 'Slithers the Snake', wikiTitle: 'Snake',
     problem: "He's having terrible trouble shedding — it's stuck all over!",
     options: [
       { text: 'Soak him in lukewarm water and gently help remove the shed', correct: true },
@@ -539,7 +542,7 @@ const PATIENTS = [
     ]
   },
   {
-    animal: '🐄', name: 'Daisy the Cow',
+    animal: '🐄', name: 'Daisy the Cow', wikiTitle: 'Cattle',
     problem: "She's limping badly on her front left leg and won't put weight on it!",
     options: [
       { text: 'Examine the hoof for stones, abscess or injury and treat it', correct: true },
@@ -549,7 +552,7 @@ const PATIENTS = [
     ]
   },
   {
-    animal: '🐑', name: 'Woolly the Sheep',
+    animal: '🐑', name: 'Woolly the Sheep', wikiTitle: 'Sheep',
     problem: "Her wool has grown so thick she can barely see or move!",
     options: [
       { text: 'Shear her wool and check the skin underneath for irritation', correct: true },
@@ -559,7 +562,7 @@ const PATIENTS = [
     ]
   },
   {
-    animal: '🐷', name: 'Hamlet the Pig',
+    animal: '🐷', name: 'Hamlet the Pig', wikiTitle: 'Pig',
     problem: 'He ate something strange in the field and has terrible diarrhoea!',
     options: [
       { text: 'Withhold food briefly, give fluids and electrolytes', correct: true },
@@ -569,7 +572,7 @@ const PATIENTS = [
     ]
   },
   {
-    animal: '🐴', name: 'Gallop the Horse',
+    animal: '🐴', name: 'Gallop the Horse', wikiTitle: 'Horse',
     problem: 'He has a deep cut on his leg from jumping a fence!',
     options: [
       { text: 'Clean the wound, apply antiseptic and bandage it properly', correct: true },
@@ -579,7 +582,7 @@ const PATIENTS = [
     ]
   },
   {
-    animal: '🦁', name: 'Leo the Lion',
+    animal: '🦁', name: 'Leo the Lion', wikiTitle: 'Lion',
     problem: 'He has a massive thorn stuck deep in his paw!',
     options: [
       { text: 'Carefully sedate him, remove the thorn and clean the wound', correct: true },
@@ -589,7 +592,7 @@ const PATIENTS = [
     ]
   },
   {
-    animal: '🐧', name: 'Waddles the Penguin',
+    animal: '🐧', name: 'Waddles the Penguin', wikiTitle: 'Penguin',
     problem: 'He swallowed a small piece of plastic and looks very unwell!',
     options: [
       { text: 'X-ray to locate it, then endoscopy or surgery to remove it', correct: true },
@@ -599,7 +602,7 @@ const PATIENTS = [
     ]
   },
   {
-    animal: '🦒', name: 'Gerald the Giraffe',
+    animal: '🦒', name: 'Gerald the Giraffe', wikiTitle: 'Giraffe',
     problem: "He has a terrible sore throat and keeps coughing — it's a very long way down!",
     options: [
       { text: 'Antibiotics via long-neck injection and plenty of warm fluids', correct: true },
@@ -609,7 +612,7 @@ const PATIENTS = [
     ]
   },
   {
-    animal: '🐊', name: 'Snap the Crocodile',
+    animal: '🐊', name: 'Snap the Crocodile', wikiTitle: 'Crocodile',
     problem: "One of his teeth has a terrible abscess and he's in agony!",
     options: [
       { text: 'Sedate carefully, drain the abscess and prescribe antibiotics', correct: true },
@@ -619,7 +622,7 @@ const PATIENTS = [
     ]
   },
   {
-    animal: '🦊', name: 'Rusty the Fox',
+    animal: '🦊', name: 'Rusty the Fox', wikiTitle: 'Red_fox',
     problem: 'He got his head stuck in a jar and has a nasty cut on his ear!',
     options: [
       { text: 'Carefully remove the jar, clean the ear wound and bandage it', correct: true },
@@ -629,7 +632,7 @@ const PATIENTS = [
     ]
   },
   {
-    animal: '🐻', name: 'Bernard the Bear',
+    animal: '🐻', name: 'Bernard the Bear', wikiTitle: 'Bear',
     problem: "He ate so much honey he has a severe allergic reaction — his face is swelling!",
     options: [
       { text: 'Antihistamines immediately and monitor closely for anaphylaxis', correct: true },
@@ -639,7 +642,7 @@ const PATIENTS = [
     ]
   },
   {
-    animal: '🦔', name: 'Spike the Hedgehog',
+    animal: '🦔', name: 'Spike the Hedgehog', wikiTitle: 'Hedgehog',
     problem: "He rolled into a ball and can't seem to uncurl — he's been like it for hours!",
     options: [
       { text: 'Keep him warm and quiet — investigate for neurological issues', correct: true },
@@ -709,7 +712,9 @@ function nextPatient() {
   document.getElementById('funeral-scene').classList.remove('visible');
   document.getElementById('tombstone').classList.remove('visible');
   hideGif();
-  animalEl.textContent = current.animal;
+  animalEl.src = '';
+  animalEl.alt = current.name;
+  loadAnimalImage(current.wikiTitle);
   animalEl.style.animation = 'none';
   animalEl.offsetHeight; // reflow
   animalEl.style.animation = 'float 3s ease-in-out infinite';
@@ -799,6 +804,17 @@ function handleAnswer(clickedBtn, isCorrect, options, letters) {
   document.getElementById('stats').textContent =
     total > 0 ? `${Math.round((correct / total) * 100)}% success rate over ${total} patient${total !== 1 ? 's' : ''}` : '';
 }
+async function loadAnimalImage(wikiTitle) {
+  const img = document.getElementById('animal-display');
+  try {
+    const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiTitle)}`);
+    const data = await res.json();
+    if (data.thumbnail?.source) {
+      img.src = data.thumbnail.source;
+    }
+  } catch(e) { /* leave blank on error */ }
+}
+
 function showGif(type, duration) {
   const overlay = document.getElementById('gif-overlay');
   const savedImg = document.getElementById('gif-saved');
