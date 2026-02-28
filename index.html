@@ -293,6 +293,21 @@
   #start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #2e7d32; }
   #start-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #2e7d32; }
 
+  .lang-btn {
+    background: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 14px;
+    padding: 13px 28px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.15rem;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #2e7d32;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .lang-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #2e7d32; }
+  .lang-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #2e7d32; }
+
   #stats {
     font-size: 0.85rem;
     color: #aaa;
@@ -405,20 +420,23 @@
 </head>
 <body>
 
-<h1>🏥 Dr. Paws Vet Surgery</h1>
+<h1 id="game-title">🏥 Dr. Paws Vet Surgery</h1>
 <div id="subtitle">Heal them all, Doctor!</div>
 
 <div id="score-bar">
-  <span>✅ Saved: <span id="score-correct">0</span></span>
-  <span>❌ Missed: <span id="score-wrong">0</span></span>
+  <span id="label-saved">✅ Saved: </span><span id="score-correct">0</span>
+  <span id="label-missed">❌ Missed: </span><span id="score-wrong">0</span>
 </div>
 
 <div id="game-area">
   <div id="start-screen">
     <div class="big-emoji">🐾</div>
-    <p>Animals are lining up outside! They need your help, Doctor.<br>
+    <p id="start-desc">Animals are lining up outside! They need your help, Doctor.<br>
     Listen to their problem and pick the right cure!</p>
-    <button id="start-btn" onclick="startGame()">Open the Surgery!</button>
+    <div style="display:flex;gap:14px;justify-content:center;">
+      <button class="lang-btn" onclick="startGame('en')">🇬🇧 English</button>
+      <button class="lang-btn" onclick="startGame('no')">🇳🇴 Norsk</button>
+    </div>
   </div>
 
   <div id="play-screen" style="display:none; flex-direction:column; align-items:center; gap:18px; width:100%;">
@@ -452,222 +470,376 @@
 <script>
 const PATIENTS = [
   {
-    animal: '🐶', name: 'Bruno the Dog', wikiTitle: 'Golden_Retriever',
-    problem: 'He ate an entire chocolate cake and his tummy is in agony!',
-    options: [
+    animal: '🐶', wikiTitle: 'Golden_Retriever',
+    en: { name: 'Bruno the Dog', problem: 'He ate an entire chocolate cake and his tummy is in agony!', options: [
       { text: 'Induce vomiting and give activated charcoal', correct: true },
       { text: 'Give him plenty of water to dilute the toxins', correct: false },
       { text: 'Give him more chocolate as a treat', correct: false },
       { text: 'Tell him to walk it off', correct: false },
-    ]
+    ]},
+    no: { name: 'Bruno hunden', problem: 'Han spiste en hel sjokoladekake og magen hans er i agoni!', options: [
+      { text: 'Fremkall oppkast og gi aktivt kull', correct: true },
+      { text: 'Gi ham mye vann for å fortynne giftstoffene', correct: false },
+      { text: 'Gi ham mer sjokolade som belønning', correct: false },
+      { text: 'Si til ham at han kan gå det av seg', correct: false },
+    ]},
   },
   {
-    animal: '🐱', name: 'Princess the Cat', wikiTitle: 'Cat',
-    problem: 'She swallowed a hairball the size of a tennis ball!',
-    options: [
+    animal: '🐱', wikiTitle: 'Cat',
+    en: { name: 'Princess the Cat', problem: 'She swallowed a hairball the size of a tennis ball!', options: [
       { text: 'Massage the area and give hairball remedy gel', correct: true },
       { text: 'Give her a mild laxative to help it pass naturally', correct: false },
       { text: 'Shave her completely bald', correct: false },
       { text: 'Feed her extra fur to push it through', correct: false },
-    ]
+    ]},
+    no: { name: 'Prinsesse katten', problem: 'Hun svelget en hårkule på størrelse med en tennisball!', options: [
+      { text: 'Massér området og gi hårkule-gel', correct: true },
+      { text: 'Gi henne et mildt avføringsmiddel for å hjelpe det gjennom', correct: false },
+      { text: 'Barber henne helt skallet', correct: false },
+      { text: 'Gi henne mer hår for å dytte det gjennom', correct: false },
+    ]},
   },
   {
-    animal: '🐰', name: 'Fluffy the Rabbit', wikiTitle: 'Rabbit',
-    problem: "She hasn't eaten in two days and her teeth are overgrown!",
-    options: [
+    animal: '🐰', wikiTitle: 'Rabbit',
+    en: { name: 'Fluffy the Rabbit', problem: "She hasn't eaten in two days and her teeth are overgrown!", options: [
       { text: 'Trim the overgrown teeth and review her diet', correct: true },
       { text: 'Soften her food and monitor her eating for a week', correct: false },
       { text: "Pull all her teeth out so it won't happen again", correct: false },
       { text: 'Give her tiny braces', correct: false },
-    ]
+    ]},
+    no: { name: 'Fluffy kaninen', problem: 'Hun har ikke spist på to dager og tennene har vokst for mye!', options: [
+      { text: 'Trim de overvokste tennene og gjennomgå dietten', correct: true },
+      { text: 'Myk opp maten og overvåk spisingen i en uke', correct: false },
+      { text: 'Dra ut alle tennene så det ikke skjer igjen', correct: false },
+      { text: 'Gi henne bittesmå tannregulering', correct: false },
+    ]},
   },
   {
-    animal: '🐹', name: 'Cheeks the Hamster', wikiTitle: 'Hamster',
-    problem: "His cheek pouches are so stuffed he can't close his mouth!",
-    options: [
+    animal: '🐹', wikiTitle: 'Hamster',
+    en: { name: 'Cheeks the Hamster', problem: "His cheek pouches are so stuffed he can't close his mouth!", options: [
       { text: 'Gently empty the pouches and check for injury', correct: true },
       { text: 'Give him a warm compress to help loosen the contents', correct: false },
       { text: 'Sew his mouth shut so he stops overeating', correct: false },
       { text: 'Add more food — he looks hungry', correct: false },
-    ]
+    ]},
+    no: { name: 'Kinnposer hamsteren', problem: 'Kinnposene hans er så fulle at han ikke kan lukke munnen!', options: [
+      { text: 'Tøm forsiktig posene og sjekk for skader', correct: true },
+      { text: 'Gi ham et varmt kompress for å løsne innholdet', correct: false },
+      { text: 'Sy igjen munnen hans så han slutter å overspise', correct: false },
+      { text: 'Gi ham mer mat — han ser sulten ut', correct: false },
+    ]},
   },
   {
-    animal: '🐦', name: 'Tweety the Parrot', wikiTitle: 'Parrot',
-    problem: 'He flew into a window and his wing is drooping badly!',
-    options: [
+    animal: '🐦', wikiTitle: 'Parrot',
+    en: { name: 'Tweety the Parrot', problem: 'He flew into a window and his wing is drooping badly!', options: [
       { text: 'Splint the wing and keep him calm and warm', correct: true },
       { text: 'Restrict movement and give anti-inflammatories', correct: false },
       { text: 'Tell him to flap harder and it will fix itself', correct: false },
       { text: 'Clip all his feathers so he stops flying', correct: false },
-    ]
+    ]},
+    no: { name: 'Tweety papegøyen', problem: 'Han fløy inn i et vindu og vingen hans henger slapt!', options: [
+      { text: 'Splint vingen og hold ham rolig og varm', correct: true },
+      { text: 'Begrens bevegelse og gi betennelsesdempende midler', correct: false },
+      { text: 'Si til ham å flakse hardere, det fikser seg', correct: false },
+      { text: 'Klipp alle fjærene hans så han slutter å fly', correct: false },
+    ]},
   },
   {
-    animal: '🐢', name: 'Shelly the Tortoise', wikiTitle: 'Tortoise',
-    problem: "She's been sneezing for three days and her eyes are crusty!",
-    options: [
+    animal: '🐢', wikiTitle: 'Tortoise',
+    en: { name: 'Shelly the Tortoise', problem: "She's been sneezing for three days and her eyes are crusty!", options: [
       { text: 'Respiratory infection — antibiotics and warm humid environment', correct: true },
       { text: 'Antihistamines and nasal drops for a possible allergy', correct: false },
       { text: 'Polish her shell and hope for the best', correct: false },
       { text: 'Tell her to stop going outside in the cold', correct: false },
-    ]
+    ]},
+    no: { name: 'Shelly skilpadden', problem: 'Hun har nyst i tre dager og øynene er fulle av skrap!', options: [
+      { text: 'Luftveisinfeksjon — antibiotika og varmt fuktig miljø', correct: true },
+      { text: 'Antihistaminer og nesedråper for en mulig allergi', correct: false },
+      { text: 'Poler skallet hennes og håp på det beste', correct: false },
+      { text: 'Si til henne å slutte å gå ut i kulden', correct: false },
+    ]},
   },
   {
-    animal: '🦜', name: 'Mango the Macaw', wikiTitle: 'Macaw',
-    problem: "He's been pulling out his own feathers and looks very stressed!",
-    options: [
+    animal: '🦜', wikiTitle: 'Macaw',
+    en: { name: 'Mango the Macaw', problem: "He's been pulling out his own feathers and looks very stressed!", options: [
       { text: 'Buster collar, enrichment toys and a check for skin infection', correct: true },
       { text: 'Prescribe anti-anxiety medication and increase social interaction', correct: false },
       { text: 'Take all his toys away so he stops getting distracted', correct: false },
       { text: 'Glue the feathers back on', correct: false },
-    ]
+    ]},
+    no: { name: 'Mango araen', problem: 'Han har rukket ut sine egne fjær og ser veldig stresset ut!', options: [
+      { text: 'Bøyle-krage, berikende leker og sjekk for hudinfeksjon', correct: true },
+      { text: 'Skriv ut angstdempende medisiner og øk sosial interaksjon', correct: false },
+      { text: 'Ta fra ham alle lekene så han slutter å bli distrahert', correct: false },
+      { text: 'Lim fjærene tilbake', correct: false },
+    ]},
   },
   {
-    animal: '🐠', name: 'Bubbles the Goldfish', wikiTitle: 'Goldfish',
-    problem: "He's floating sideways at the top of his tank!",
-    options: [
+    animal: '🐠', wikiTitle: 'Goldfish',
+    en: { name: 'Bubbles the Goldfish', problem: "He's floating sideways at the top of his tank!", options: [
       { text: 'Swim bladder issue — adjust diet and check water quality', correct: true },
       { text: 'Do a 50% water change and add aquarium salt', correct: false },
       { text: 'Give the tank a good shake to wake him up', correct: false },
       { text: 'Add more fish to keep him company', correct: false },
-    ]
+    ]},
+    no: { name: 'Bobla gullfisken', problem: 'Han flyter sidelengs på toppen av tanken!', options: [
+      { text: 'Svømmeblæreproblem — juster diett og sjekk vannkvalitet', correct: true },
+      { text: 'Gjør et 50% vannskifte og tilsett akvariesalt', correct: false },
+      { text: 'Rist tanken godt for å vekke ham', correct: false },
+      { text: 'Legg til flere fisker for å holde ham med selskap', correct: false },
+    ]},
   },
   {
-    animal: '🐍', name: 'Slithers the Snake', wikiTitle: 'Snake',
-    problem: "He's having terrible trouble shedding — it's stuck all over!",
-    options: [
+    animal: '🐍', wikiTitle: 'Snake',
+    en: { name: 'Slithers the Snake', problem: "He's having terrible trouble shedding — it's stuck all over!", options: [
       { text: 'Soak him in lukewarm water and gently help remove the shed', correct: true },
       { text: 'Apply reptile shedding aid spray and leave him to it', correct: false },
       { text: 'Peel it off as fast as possible with dry hands', correct: false },
       { text: 'Spray him with hairspray to loosen it', correct: false },
-    ]
+    ]},
+    no: { name: 'Slithers slangen', problem: 'Han har fryktelige problemer med å skifte skinn — det sitter fast overalt!', options: [
+      { text: 'Bade ham i lunkent vann og hjelp forsiktig til med å fjerne skinnet', correct: true },
+      { text: 'Bruk reptil-skiftespray og la ham ordne det selv', correct: false },
+      { text: 'Dra det av så fort som mulig med tørre hender', correct: false },
+      { text: 'Sprøyt ham med hårspray for å løsne det', correct: false },
+    ]},
   },
   {
-    animal: '🐄', name: 'Daisy the Cow', wikiTitle: 'Cattle',
-    problem: "She's limping badly on her front left leg and won't put weight on it!",
-    options: [
+    animal: '🐄', wikiTitle: 'Cattle',
+    en: { name: 'Daisy the Cow', problem: "She's limping badly on her front left leg and won't put weight on it!", options: [
       { text: 'Examine the hoof for stones, abscess or injury and treat it', correct: true },
       { text: 'Administer pain relief and restrict her movement for 48 hours', correct: false },
       { text: 'Give her a tiny walking stick', correct: false },
       { text: 'Wrap all four legs in bandages just to be safe', correct: false },
-    ]
+    ]},
+    no: { name: 'Daisy kua', problem: 'Hun halter kraftig på venstre framben og vil ikke belaste det!', options: [
+      { text: 'Undersøk hoven for steiner, byller eller skader og behandle', correct: true },
+      { text: 'Gi smertestillende og begrens bevegelsen i 48 timer', correct: false },
+      { text: 'Gi henne en liten spaserstokk', correct: false },
+      { text: 'Bandasjer alle fire bena bare for sikkerhets skyld', correct: false },
+    ]},
   },
   {
-    animal: '🐑', name: 'Woolly the Sheep', wikiTitle: 'Sheep',
-    problem: "Her wool has grown so thick she can barely see or move!",
-    options: [
+    animal: '🐑', wikiTitle: 'Sheep',
+    en: { name: 'Woolly the Sheep', problem: "Her wool has grown so thick she can barely see or move!", options: [
       { text: 'Shear her wool and check the skin underneath for irritation', correct: true },
       { text: 'Trim the wool around her face and legs to restore movement', correct: false },
       { text: 'Knit her a hat so at least something useful comes of it', correct: false },
       { text: 'Install tiny windscreen wipers on her face', correct: false },
-    ]
+    ]},
+    no: { name: 'Woolly sauen', problem: 'Ulla hennes har vokst så tykk at hun knapt kan se eller bevege seg!', options: [
+      { text: 'Klipp ulla og sjekk huden under for irritasjon', correct: true },
+      { text: 'Trim ulla rundt ansiktet og bena for å gjenopprette bevegelse', correct: false },
+      { text: 'Strikk henne en lue, så noe nyttig kommer av det', correct: false },
+      { text: 'Installer bittesmå vindusviskere på ansiktet hennes', correct: false },
+    ]},
   },
   {
-    animal: '🐷', name: 'Hamlet the Pig', wikiTitle: 'Pig',
-    problem: 'He ate something strange in the field and has terrible diarrhoea!',
-    options: [
+    animal: '🐷', wikiTitle: 'Pig',
+    en: { name: 'Hamlet the Pig', problem: 'He ate something strange in the field and has terrible diarrhoea!', options: [
       { text: 'Withhold food briefly, give fluids and electrolytes', correct: true },
       { text: 'Prescribe probiotics and switch to a bland diet immediately', correct: false },
       { text: 'Put him in a nappy and call it a day', correct: false },
       { text: 'Feed him more field scraps — hair of the dog!', correct: false },
-    ]
+    ]},
+    no: { name: 'Hamlet grisen', problem: 'Han spiste noe rart på jordet og har fryktelig diaré!', options: [
+      { text: 'Hold tilbake mat midlertidig, gi væske og elektrolytter', correct: true },
+      { text: 'Skriv ut probiotika og bytt til mild diett umiddelbart', correct: false },
+      { text: 'Sett ham i bleie og kall det en dag', correct: false },
+      { text: 'Gi ham mer jordsøppel — hår av hunden!', correct: false },
+    ]},
   },
   {
-    animal: '🐴', name: 'Gallop the Horse', wikiTitle: 'Horse',
-    problem: 'He has a deep cut on his leg from jumping a fence!',
-    options: [
+    animal: '🐴', wikiTitle: 'Horse',
+    en: { name: 'Gallop the Horse', problem: 'He has a deep cut on his leg from jumping a fence!', options: [
       { text: 'Clean the wound, apply antiseptic and bandage it properly', correct: true },
       { text: 'Flush with saline and apply a poultice to draw out infection', correct: false },
       { text: 'Blow on it three times and say a healing chant', correct: false },
       { text: 'Put a plaster on it and send him back out', correct: false },
-    ]
+    ]},
+    no: { name: 'Gallop hesten', problem: 'Han har et dypt kutt på benet fra å hoppe over et gjerde!', options: [
+      { text: 'Rens såret, påfør antiseptisk middel og bandasjer det', correct: true },
+      { text: 'Skyll med saltvann og påfør poultice for å trekke ut infeksjon', correct: false },
+      { text: 'Blås på det tre ganger og si en helbredelsesvise', correct: false },
+      { text: 'Sett et plaster på det og send ham ut igjen', correct: false },
+    ]},
   },
   {
-    animal: '🦁', name: 'Leo the Lion', wikiTitle: 'Lion',
-    problem: 'He has a massive thorn stuck deep in his paw!',
-    options: [
+    animal: '🦁', wikiTitle: 'Lion',
+    en: { name: 'Leo the Lion', problem: 'He has a massive thorn stuck deep in his paw!', options: [
       { text: 'Carefully sedate him, remove the thorn and clean the wound', correct: true },
       { text: 'Administer local anaesthetic and remove with sterile forceps', correct: false },
       { text: "Pull it out with your bare hands and hope he's friendly", correct: false },
       { text: 'Give him tiny lion boots to wear from now on', correct: false },
-    ]
+    ]},
+    no: { name: 'Leo løven', problem: 'Han har en massiv torn sittende dypt i poten!', options: [
+      { text: 'Sedasjon forsiktig, fjern tornen og rens såret', correct: true },
+      { text: 'Gi lokalbedøvelse og fjern med sterile pinsetter', correct: false },
+      { text: 'Dra det ut med bare hendene og håp han er vennlig', correct: false },
+      { text: 'Gi ham bittesmå løvestøvler å ha på fra nå av', correct: false },
+    ]},
   },
   {
-    animal: '🐧', name: 'Waddles the Penguin', wikiTitle: 'Penguin',
-    problem: 'He swallowed a small piece of plastic and looks very unwell!',
-    options: [
+    animal: '🐧', wikiTitle: 'Penguin',
+    en: { name: 'Waddles the Penguin', problem: 'He swallowed a small piece of plastic and looks very unwell!', options: [
       { text: 'X-ray to locate it, then endoscopy or surgery to remove it', correct: true },
       { text: 'Induce vomiting and monitor his digestive tract closely', correct: false },
       { text: 'Pat him on the back firmly until it pops out', correct: false },
       { text: 'Put him in a paddling pool and monitor the situation', correct: false },
-    ]
+    ]},
+    no: { name: 'Vadler pingvinen', problem: 'Han svelget en liten plastbit og ser veldig dårlig ut!', options: [
+      { text: 'Røntgen for å finne det, deretter endoskopi eller kirurgi', correct: true },
+      { text: 'Fremkall oppkast og overvåk fordøyelsen nøye', correct: false },
+      { text: 'Klapp ham hardt på ryggen til det spretter ut', correct: false },
+      { text: 'Sett ham i en plastikkpøl og overvåk situasjonen', correct: false },
+    ]},
   },
   {
-    animal: '🦒', name: 'Gerald the Giraffe', wikiTitle: 'Giraffe',
-    problem: "He has a terrible sore throat and keeps coughing — it's a very long way down!",
-    options: [
+    animal: '🦒', wikiTitle: 'Giraffe',
+    en: { name: 'Gerald the Giraffe', problem: "He has a terrible sore throat and keeps coughing — it's a very long way down!", options: [
       { text: 'Antibiotics via long-neck injection and plenty of warm fluids', correct: true },
       { text: 'Throat spray and anti-inflammatory medication to reduce swelling', correct: false },
       { text: 'Make him wear a very long scarf', correct: false },
       { text: 'Drop lozenges down his throat from a ladder', correct: false },
-    ]
+    ]},
+    no: { name: 'Gerald sjiraffen', problem: 'Han har fryktelig vondt i halsen og hoster hele tiden — det er veldig langt ned!', options: [
+      { text: 'Antibiotika via halsinjektion og mye varme væsker', correct: true },
+      { text: 'Halsspray og betennelsesdempende medisin for å redusere hevelse', correct: false },
+      { text: 'La ham ta på seg et veldig langt skjerf', correct: false },
+      { text: 'Slipp pastiller ned i halsen hans fra en stige', correct: false },
+    ]},
   },
   {
-    animal: '🐊', name: 'Snap the Crocodile', wikiTitle: 'Crocodile',
-    problem: "One of his teeth has a terrible abscess and he's in agony!",
-    options: [
+    animal: '🐊', wikiTitle: 'Crocodile',
+    en: { name: 'Snap the Crocodile', problem: "One of his teeth has a terrible abscess and he's in agony!", options: [
       { text: 'Sedate carefully, drain the abscess and prescribe antibiotics', correct: true },
       { text: 'Prescribe oral antibiotics and dental gel to manage the pain', correct: false },
       { text: 'Pull all 80 teeth out so it never happens again', correct: false },
       { text: 'Tie his mouth shut until it clears up on its own', correct: false },
-    ]
+    ]},
+    no: { name: 'Snap krokodillen', problem: 'En av tennene hans har en fryktelig abscess og han har det vondt!', options: [
+      { text: 'Sedasjon forsiktig, dren abscesset og skriv ut antibiotika', correct: true },
+      { text: 'Skriv ut oral antibiotika og tannkjøttgel for å dempe smerte', correct: false },
+      { text: 'Dra ut alle 80 tennene så det aldri skjer igjen', correct: false },
+      { text: 'Bind igjen munnen hans til det ordner seg selv', correct: false },
+    ]},
   },
   {
-    animal: '🦊', name: 'Rusty the Fox', wikiTitle: 'Red_fox',
-    problem: 'He got his head stuck in a jar and has a nasty cut on his ear!',
-    options: [
+    animal: '🦊', wikiTitle: 'Red_fox',
+    en: { name: 'Rusty the Fox', problem: 'He got his head stuck in a jar and has a nasty cut on his ear!', options: [
       { text: 'Carefully remove the jar, clean the ear wound and bandage it', correct: true },
       { text: 'Apply lubricant around the jar rim and ease it off slowly', correct: false },
       { text: 'Break the jar immediately with a hammer', correct: false },
       { text: 'Give him butter and spin him really fast', correct: false },
-    ]
+    ]},
+    no: { name: 'Rusty reven', problem: 'Han fikk hodet fast i en krukke og har et stygt kutt på øret!', options: [
+      { text: 'Fjern forsiktig krukken, rens øresåret og bandasjer det', correct: true },
+      { text: 'Påfør smøremiddel rundt kanten og dra den forsiktig av', correct: false },
+      { text: 'Knuse krukken umiddelbart med en hammer', correct: false },
+      { text: 'Gi ham smør og snu ham veldig fort', correct: false },
+    ]},
   },
   {
-    animal: '🐻', name: 'Bernard the Bear', wikiTitle: 'Bear',
-    problem: "He ate so much honey he has a severe allergic reaction — his face is swelling!",
-    options: [
+    animal: '🐻', wikiTitle: 'Bear',
+    en: { name: 'Bernard the Bear', problem: "He ate so much honey he has a severe allergic reaction — his face is swelling!", options: [
       { text: 'Antihistamines immediately and monitor closely for anaphylaxis', correct: true },
       { text: 'Administer a steroid injection to reduce the swelling quickly', correct: false },
       { text: 'Rub him with beeswax as a counter-irritant', correct: false },
       { text: 'Give him more honey to balance it out', correct: false },
-    ]
+    ]},
+    no: { name: 'Bernard bjørnen', problem: 'Han spiste så mye honning at han har en kraftig allergisk reaksjon — ansiktet svulmer opp!', options: [
+      { text: 'Antihistaminer umiddelbart og overvåk for anafylaksi', correct: true },
+      { text: 'Gi en steroidinjeksjon for å redusere hevelsen raskt', correct: false },
+      { text: 'Gni ham med bivoks som motmiddel', correct: false },
+      { text: 'Gi ham mer honning for å balansere det ut', correct: false },
+    ]},
   },
   {
-    animal: '🦔', name: 'Spike the Hedgehog', wikiTitle: 'Hedgehog',
-    problem: "He rolled into a ball and can't seem to uncurl — he's been like it for hours!",
-    options: [
+    animal: '🦔', wikiTitle: 'Hedgehog',
+    en: { name: 'Spike the Hedgehog', problem: "He rolled into a ball and can't seem to uncurl — he's been like it for hours!", options: [
       { text: 'Keep him warm and quiet — investigate for neurological issues', correct: true },
       { text: 'Check his temperature and give a mild muscle relaxant', correct: false },
       { text: 'Blow air under him until he pops open', correct: false },
       { text: 'Tickle him until he unrolls out of laughter', correct: false },
-    ]
+    ]},
+    no: { name: 'Spike pinnsvinnet', problem: 'Han rullet seg til en ball og klarer ikke å rulle seg ut — det har vart i timevis!', options: [
+      { text: 'Hold ham varm og rolig — undersøk for nevrologiske problemer', correct: true },
+      { text: 'Sjekk temperaturen hans og gi et mildt muskelavslappende middel', correct: false },
+      { text: 'Blås luft under ham til han spretter opp', correct: false },
+      { text: 'Kil ham til han ruller ut av latter', correct: false },
+    ]},
   },
 ];
 
-const WRONG_PHRASES = [
-  "oh boy i am dying 😵",
-  "oh no no no... i am dying 💀",
-  "oh boy i am dying, this is the end 😩",
-  "oh dear, oh dear... i am dying 😢",
-  "i am DYING, this is not right at all! 😱",
-];
+const PHRASES = {
+  en: {
+    wrong: [
+      "oh boy i am dying 😵",
+      "oh no no no... i am dying 💀",
+      "oh boy i am dying, this is the end 😩",
+      "oh dear, oh dear... i am dying 😢",
+      "i am DYING, this is not right at all! 😱",
+    ],
+    correct: [
+      "oh my goodness you just saved my life you did! 🎉",
+      "oh my goodness you just saved my life you did, THANK YOU! 🥳",
+      "oh my goodness, i am saved! you just saved my life you did! ✨",
+      "oh my goodness you just saved my life you did, what a doctor! 🏆",
+      "you just saved my life you did! oh my goodness! 💖",
+    ],
+    greetings: [
+      "Doctor, please help me! 🙏",
+      "I need your help urgently, Doctor!",
+      "Thank goodness you're here, Doc!",
+      "Please Doctor, I'm not well at all!",
+      "Help me Doctor, something's wrong!",
+    ],
+  },
+  no: {
+    wrong: [
+      "å nei, jeg dør 😵",
+      "å nei å nei... jeg dør 💀",
+      "å nei, jeg dør, dette er slutten 😩",
+      "å kjære meg, å kjære meg... jeg dør 😢",
+      "jeg DØR, dette er ikke riktig i det hele tatt! 😱",
+    ],
+    correct: [
+      "å herregud du reddet livet mitt! 🎉",
+      "å herregud du reddet livet mitt, TAKK! 🥳",
+      "å herregud, jeg er reddet! Du reddet livet mitt! ✨",
+      "du reddet livet mitt! Å herregud, for en doktor! 🏆",
+      "du reddet livet mitt! Å herregud! 💖",
+    ],
+    greetings: [
+      "Doktor, vær så snill å hjelp meg! 🙏",
+      "Jeg trenger hjelpen din snarest, Doktor!",
+      "Takk Gud for at du er her, Doktor!",
+      "Vær så snill Doktor, jeg har det ikke bra!",
+      "Hjelp meg Doktor, noe er galt!",
+    ],
+  },
+};
 
-const CORRECT_PHRASES = [
-  "oh my goodness you just saved my life you did! 🎉",
-  "oh my goodness you just saved my life you did, THANK YOU! 🥳",
-  "oh my goodness, i am saved! you just saved my life you did! ✨",
-  "oh my goodness you just saved my life you did, what a doctor! 🏆",
-  "you just saved my life you did! oh my goodness! 💖",
-];
+const UI = {
+  en: {
+    title:    '🏥 Dr. Paws Vet Surgery',
+    subtitle: 'Heal them all, Doctor!',
+    saved:    '✅ Saved: ',
+    missed:   '❌ Missed: ',
+    startDesc: 'Animals are lining up outside! They need your help, Doctor.<br>Listen to their problem and pick the right cure!',
+    nextBtn:  'Next Patient ➡️',
+  },
+  no: {
+    title:    '🏥 Dr. Potes Dyreklinikk',
+    subtitle: 'Helbred dem alle, Doktor!',
+    saved:    '✅ Reddet: ',
+    missed:   '❌ Feil: ',
+    startDesc: 'Dyr venter utenfor! De trenger din hjelp, Doktor.<br>Lytt til problemet og velg riktig kur!',
+    nextBtn:  'Neste pasient ➡️',
+  },
+};
+
+let lang = 'en';
 
 let correct = 0;
 let wrong = 0;
@@ -692,7 +864,14 @@ function refillQueue() {
   queue = shuffle(PATIENTS);
 }
 
-function startGame() {
+function startGame(selectedLang) {
+  lang = selectedLang;
+  const ui = UI[lang];
+  document.getElementById('game-title').textContent = ui.title;
+  document.getElementById('subtitle').textContent   = ui.subtitle;
+  document.getElementById('label-saved').textContent  = ui.saved;
+  document.getElementById('label-missed').textContent = ui.missed;
+  document.getElementById('next-btn').textContent = ui.nextBtn;
   document.getElementById('start-screen').style.display = 'none';
   document.getElementById('play-screen').style.display = 'flex';
   refillQueue();
@@ -705,7 +884,7 @@ function nextPatient() {
   answered = false;
 
   // Shuffle options
-  const shuffledOptions = shuffle(current.options);
+  const shuffledOptions = shuffle(current[lang].options);
 
   // Animal display
   const animalEl = document.getElementById('animal-display');
@@ -720,17 +899,11 @@ function nextPatient() {
   animalEl.style.animation = 'float 3s ease-in-out infinite';
 
   // Speech bubble — greeting
-  const greetings = [
-    `Doctor, please help me! 🙏`,
-    `I need your help urgently, Doctor!`,
-    `Thank goodness you're here, Doc!`,
-    `Please Doctor, I'm not well at all!`,
-    `Help me Doctor, something's wrong!`,
-  ];
+  const greetings = PHRASES[lang].greetings;
   setSpeech(pick(greetings), '');
 
-  document.getElementById('animal-name').textContent = current.name;
-  document.getElementById('problem-text').textContent = current.problem;
+  document.getElementById('animal-name').textContent = current[lang].name;
+  document.getElementById('problem-text').textContent = current[lang].problem;
 
   // Build choice buttons
   const choicesEl = document.getElementById('choices');
@@ -773,7 +946,7 @@ function handleAnswer(clickedBtn, isCorrect, options, letters) {
   if (isCorrect) {
     correct++;
     clickedBtn.classList.add('correct-ans');
-    setSpeech(pick(CORRECT_PHRASES), 'correct');
+    setSpeech(pick(PHRASES[lang].correct), 'correct');
     animalEl.style.animation = 'none';
     animalEl.offsetHeight;
     animalEl.style.animation = 'bounce 0.6s ease-in-out';
@@ -784,7 +957,7 @@ function handleAnswer(clickedBtn, isCorrect, options, letters) {
   } else {
     wrong++;
     clickedBtn.classList.add('wrong-ans');
-    setSpeech(pick(WRONG_PHRASES), 'wrong');
+    setSpeech(pick(PHRASES[lang].wrong), 'wrong');
     animalEl.style.animation = 'none';
     animalEl.offsetHeight;
     animalEl.style.animation = 'shake 0.5s ease-in-out';
