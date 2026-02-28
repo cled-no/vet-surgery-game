@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dr. Paws Vet Surgery</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #e8f5e9;
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.4rem;
+    color: #2e7d32;
+    text-shadow: 2px 2px 0 #a5d6a7;
+    margin-bottom: 6px;
+    text-align: center;
+  }
+
+  #subtitle {
+    font-size: 1rem;
+    color: #66bb6a;
+    font-weight: 700;
+    margin-bottom: 18px;
+  }
+
+  #score-bar {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #388e3c;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 30px;
+  }
+
+  #game-area {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    width: 100%;
+    max-width: 600px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    min-height: 480px;
+    position: relative;
+  }
+
+  /* Surgery room background details */
+  #game-area::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 8px;
+    border-radius: 24px 24px 0 0;
+    background: linear-gradient(90deg, #66bb6a, #26a69a, #42a5f5, #ab47bc, #ef5350);
+  }
+
+  #animal-display {
+    font-size: 5.5rem;
+    line-height: 1;
+    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.15));
+    animation: float 3s ease-in-out infinite;
+    cursor: default;
+    user-select: none;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    30% { transform: translateY(-16px) scale(1.1); }
+    60% { transform: translateY(-8px) scale(1.05); }
+  }
+
+  .anim-shake { animation: shake 0.5s ease-in-out; }
+  .anim-bounce { animation: bounce 0.6s ease-in-out; }
+
+  #speech-bubble {
+    background: #f1f8e9;
+    border: 3px solid #aed581;
+    border-radius: 18px;
+    padding: 14px 20px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #33691e;
+    text-align: center;
+    position: relative;
+    max-width: 100%;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  #speech-bubble::before {
+    content: '';
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 9px solid transparent;
+    border-bottom-color: #aed581;
+  }
+
+  #speech-bubble::after {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 7px solid transparent;
+    border-bottom-color: #f1f8e9;
+  }
+
+  #speech-bubble.wrong {
+    background: #fce4ec;
+    border-color: #ef9a9a;
+    color: #b71c1c;
+  }
+  #speech-bubble.wrong::before { border-bottom-color: #ef9a9a; }
+  #speech-bubble.wrong::after  { border-bottom-color: #fce4ec; }
+
+  #speech-bubble.correct {
+    background: #e8f5e9;
+    border-color: #66bb6a;
+    color: #1b5e20;
+  }
+  #speech-bubble.correct::before { border-bottom-color: #66bb6a; }
+  #speech-bubble.correct::after  { border-bottom-color: #e8f5e9; }
+
+  #problem-box {
+    background: #fff8e1;
+    border: 2px dashed #ffca28;
+    border-radius: 14px;
+    padding: 14px 18px;
+    width: 100%;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #5d4037;
+    line-height: 1.5;
+  }
+
+  #problem-box .animal-name {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.15rem;
+    color: #e65100;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  #choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .choice-btn {
+    background: #e3f2fd;
+    border: 3px solid #90caf9;
+    border-radius: 14px;
+    padding: 13px 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.93rem;
+    font-weight: 800;
+    color: #0d47a1;
+    cursor: pointer;
+    transition: transform 0.12s, background 0.15s, border-color 0.15s;
+    text-align: left;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    line-height: 1.3;
+  }
+
+  .choice-btn:hover:not(:disabled) {
+    background: #bbdefb;
+    border-color: #42a5f5;
+    transform: scale(1.03);
+  }
+
+  .choice-btn .letter {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    color: #1565c0;
+    flex-shrink: 0;
+  }
+
+  .choice-btn.correct-ans {
+    background: #e8f5e9;
+    border-color: #4caf50;
+    color: #1b5e20;
+  }
+  .choice-btn.correct-ans .letter { color: #2e7d32; }
+
+  .choice-btn.wrong-ans {
+    background: #fce4ec;
+    border-color: #e57373;
+    color: #880e4f;
+  }
+  .choice-btn.wrong-ans .letter { color: #c62828; }
+
+  .choice-btn:disabled { cursor: default; opacity: 0.85; }
+
+  #next-btn {
+    background: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 14px;
+    padding: 13px 36px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #2e7d32;
+    transition: transform 0.1s, box-shadow 0.1s;
+    display: none;
+  }
+
+  #next-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #2e7d32;
+  }
+
+  #next-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #2e7d32;
+  }
+
+  #start-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    flex: 1;
+    text-align: center;
+  }
+
+  #start-screen .big-emoji {
+    font-size: 4rem;
+  }
+
+  #start-screen p {
+    font-size: 1.05rem;
+    color: #555;
+    line-height: 1.6;
+    max-width: 400px;
+  }
+
+  #start-btn {
+    background: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 14px;
+    padding: 15px 42px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.3rem;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #2e7d32;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+
+  #start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #2e7d32; }
+  #start-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #2e7d32; }
+
+  #stats {
+    font-size: 0.85rem;
+    color: #aaa;
+    font-weight: 700;
+  }
+
+  #animal-container {
+    position: relative;
+    display: inline-block;
+    line-height: 1;
+  }
+
+  #funeral-scene {
+    display: none;
+    position: absolute;
+    inset: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  #funeral-scene.visible {
+    display: flex;
+    animation: deathFadeIn 0.3s ease-out;
+  }
+
+  #funeral-card {
+    background: linear-gradient(160deg, #2c2c2c, #1a1a1a);
+    border-radius: 12px;
+    border: 3px solid #555;
+    padding: 6px 12px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  }
+
+  #funeral-coffin { font-size: 2.2rem; line-height: 1; }
+
+  #funeral-flowers { font-size: 0.95rem; line-height: 1; letter-spacing: 2px; }
+
+  #funeral-rip {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.85rem;
+    color: #bbb;
+    letter-spacing: 3px;
+    margin-top: 1px;
+  }
+
+  #tombstone {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    font-size: 3rem;
+    animation: tombstoneIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  #tombstone span {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    margin-top: -6px;
+    letter-spacing: 2px;
+  }
+
+  #tombstone.visible { display: flex; }
+
+  @keyframes deathFadeIn {
+    from { opacity: 0; transform: scale(1.4); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes tombstoneIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.5); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+</style>
+</head>
+<body>
+
+<h1>🏥 Dr. Paws Vet Surgery</h1>
+<div id="subtitle">Heal them all, Doctor!</div>
+
+<div id="score-bar">
+  <span>✅ Saved: <span id="score-correct">0</span></span>
+  <span>❌ Missed: <span id="score-wrong">0</span></span>
+</div>
+
+<div id="game-area">
+  <div id="start-screen">
+    <div class="big-emoji">🐾</div>
+    <p>Animals are lining up outside! They need your help, Doctor.<br>
+    Listen to their problem and pick the right cure!</p>
+    <button id="start-btn" onclick="startGame()">Open the Surgery!</button>
+  </div>
+
+  <div id="play-screen" style="display:none; flex-direction:column; align-items:center; gap:18px; width:100%;">
+    <div id="animal-container">
+      <div id="animal-display">🐶</div>
+      <div id="funeral-scene">
+        <div id="funeral-card">
+          <div id="funeral-coffin">⚰️</div>
+          <div id="funeral-flowers">🌹🌷🌹</div>
+          <div id="funeral-rip">R.I.P.</div>
+        </div>
+      </div>
+    </div>
+    <div id="tombstone"><span>🪦</span><span>R.I.P.</span></div>
+    <div id="speech-bubble">...</div>
+    <div id="problem-box">
+      <span class="animal-name" id="animal-name"></span>
+      <span id="problem-text"></span>
+    </div>
+    <div id="choices"></div>
+    <button id="next-btn" onclick="nextPatient()">Next Patient ➡️</button>
+    <div id="stats"></div>
+  </div>
+</div>
+
+<script>
+const PATIENTS = [
+  {
+    animal: '🐶', name: 'Bruno the Dog',
+    problem: 'He ate an entire chocolate cake and his tummy is in agony!',
+    options: [
+      { text: 'Induce vomiting and give activated charcoal', correct: true },
+      { text: 'Give him plenty of water to dilute the toxins', correct: false },
+      { text: 'Give him more chocolate as a treat', correct: false },
+      { text: 'Tell him to walk it off', correct: false },
+    ]
+  },
+  {
+    animal: '🐱', name: 'Princess the Cat',
+    problem: 'She swallowed a hairball the size of a tennis ball!',
+    options: [
+      { text: 'Massage the area and give hairball remedy gel', correct: true },
+      { text: 'Give her a mild laxative to help it pass naturally', correct: false },
+      { text: 'Shave her completely bald', correct: false },
+      { text: 'Feed her extra fur to push it through', correct: false },
+    ]
+  },
+  {
+    animal: '🐰', name: 'Fluffy the Rabbit',
+    problem: "She hasn't eaten in two days and her teeth are overgrown!",
+    options: [
+      { text: 'Trim the overgrown teeth and review her diet', correct: true },
+      { text: 'Soften her food and monitor her eating for a week', correct: false },
+      { text: "Pull all her teeth out so it won't happen again", correct: false },
+      { text: 'Give her tiny braces', correct: false },
+    ]
+  },
+  {
+    animal: '🐹', name: 'Cheeks the Hamster',
+    problem: "His cheek pouches are so stuffed he can't close his mouth!",
+    options: [
+      { text: 'Gently empty the pouches and check for injury', correct: true },
+      { text: 'Give him a warm compress to help loosen the contents', correct: false },
+      { text: 'Sew his mouth shut so he stops overeating', correct: false },
+      { text: 'Add more food — he looks hungry', correct: false },
+    ]
+  },
+  {
+    animal: '🐦', name: 'Tweety the Parrot',
+    problem: 'He flew into a window and his wing is drooping badly!',
+    options: [
+      { text: 'Splint the wing and keep him calm and warm', correct: true },
+      { text: 'Restrict movement and give anti-inflammatories', correct: false },
+      { text: 'Tell him to flap harder and it will fix itself', correct: false },
+      { text: 'Clip all his feathers so he stops flying', correct: false },
+    ]
+  },
+  {
+    animal: '🐢', name: 'Shelly the Tortoise',
+    problem: "She's been sneezing for three days and her eyes are crusty!",
+    options: [
+      { text: 'Respiratory infection — antibiotics and warm humid environment', correct: true },
+      { text: 'Antihistamines and nasal drops for a possible allergy', correct: false },
+      { text: 'Polish her shell and hope for the best', correct: false },
+      { text: 'Tell her to stop going outside in the cold', correct: false },
+    ]
+  },
+  {
+    animal: '🦜', name: 'Mango the Macaw',
+    problem: "He's been pulling out his own feathers and looks very stressed!",
+    options: [
+      { text: 'Buster collar, enrichment toys and a check for skin infection', correct: true },
+      { text: 'Prescribe anti-anxiety medication and increase social interaction', correct: false },
+      { text: 'Take all his toys away so he stops getting distracted', correct: false },
+      { text: 'Glue the feathers back on', correct: false },
+    ]
+  },
+  {
+    animal: '🐠', name: 'Bubbles the Goldfish',
+    problem: "He's floating sideways at the top of his tank!",
+    options: [
+      { text: 'Swim bladder issue — adjust diet and check water quality', correct: true },
+      { text: 'Do a 50% water change and add aquarium salt', correct: false },
+      { text: 'Give the tank a good shake to wake him up', correct: false },
+      { text: 'Add more fish to keep him company', correct: false },
+    ]
+  },
+  {
+    animal: '🐍', name: 'Slithers the Snake',
+    problem: "He's having terrible trouble shedding — it's stuck all over!",
+    options: [
+      { text: 'Soak him in lukewarm water and gently help remove the shed', correct: true },
+      { text: 'Apply reptile shedding aid spray and leave him to it', correct: false },
+      { text: 'Peel it off as fast as possible with dry hands', correct: false },
+      { text: 'Spray him with hairspray to loosen it', correct: false },
+    ]
+  },
+  {
+    animal: '🐄', name: 'Daisy the Cow',
+    problem: "She's limping badly on her front left leg and won't put weight on it!",
+    options: [
+      { text: 'Examine the hoof for stones, abscess or injury and treat it', correct: true },
+      { text: 'Administer pain relief and restrict her movement for 48 hours', correct: false },
+      { text: 'Give her a tiny walking stick', correct: false },
+      { text: 'Wrap all four legs in bandages just to be safe', correct: false },
+    ]
+  },
+  {
+    animal: '🐑', name: 'Woolly the Sheep',
+    problem: "Her wool has grown so thick she can barely see or move!",
+    options: [
+      { text: 'Shear her wool and check the skin underneath for irritation', correct: true },
+      { text: 'Trim the wool around her face and legs to restore movement', correct: false },
+      { text: 'Knit her a hat so at least something useful comes of it', correct: false },
+      { text: 'Install tiny windscreen wipers on her face', correct: false },
+    ]
+  },
+  {
+    animal: '🐷', name: 'Hamlet the Pig',
+    problem: 'He ate something strange in the field and has terrible diarrhoea!',
+    options: [
+      { text: 'Withhold food briefly, give fluids and electrolytes', correct: true },
+      { text: 'Prescribe probiotics and switch to a bland diet immediately', correct: false },
+      { text: 'Put him in a nappy and call it a day', correct: false },
+      { text: 'Feed him more field scraps — hair of the dog!', correct: false },
+    ]
+  },
+  {
+    animal: '🐴', name: 'Gallop the Horse',
+    problem: 'He has a deep cut on his leg from jumping a fence!',
+    options: [
+      { text: 'Clean the wound, apply antiseptic and bandage it properly', correct: true },
+      { text: 'Flush with saline and apply a poultice to draw out infection', correct: false },
+      { text: 'Blow on it three times and say a healing chant', correct: false },
+      { text: 'Put a plaster on it and send him back out', correct: false },
+    ]
+  },
+  {
+    animal: '🦁', name: 'Leo the Lion',
+    problem: 'He has a massive thorn stuck deep in his paw!',
+    options: [
+      { text: 'Carefully sedate him, remove the thorn and clean the wound', correct: true },
+      { text: 'Administer local anaesthetic and remove with sterile forceps', correct: false },
+      { text: "Pull it out with your bare hands and hope he's friendly", correct: false },
+      { text: 'Give him tiny lion boots to wear from now on', correct: false },
+    ]
+  },
+  {
+    animal: '🐧', name: 'Waddles the Penguin',
+    problem: 'He swallowed a small piece of plastic and looks very unwell!',
+    options: [
+      { text: 'X-ray to locate it, then endoscopy or surgery to remove it', correct: true },
+      { text: 'Induce vomiting and monitor his digestive tract closely', correct: false },
+      { text: 'Pat him on the back firmly until it pops out', correct: false },
+      { text: 'Put him in a paddling pool and monitor the situation', correct: false },
+    ]
+  },
+  {
+    animal: '🦒', name: 'Gerald the Giraffe',
+    problem: "He has a terrible sore throat and keeps coughing — it's a very long way down!",
+    options: [
+      { text: 'Antibiotics via long-neck injection and plenty of warm fluids', correct: true },
+      { text: 'Throat spray and anti-inflammatory medication to reduce swelling', correct: false },
+      { text: 'Make him wear a very long scarf', correct: false },
+      { text: 'Drop lozenges down his throat from a ladder', correct: false },
+    ]
+  },
+  {
+    animal: '🐊', name: 'Snap the Crocodile',
+    problem: "One of his teeth has a terrible abscess and he's in agony!",
+    options: [
+      { text: 'Sedate carefully, drain the abscess and prescribe antibiotics', correct: true },
+      { text: 'Prescribe oral antibiotics and dental gel to manage the pain', correct: false },
+      { text: 'Pull all 80 teeth out so it never happens again', correct: false },
+      { text: 'Tie his mouth shut until it clears up on its own', correct: false },
+    ]
+  },
+  {
+    animal: '🦊', name: 'Rusty the Fox',
+    problem: 'He got his head stuck in a jar and has a nasty cut on his ear!',
+    options: [
+      { text: 'Carefully remove the jar, clean the ear wound and bandage it', correct: true },
+      { text: 'Apply lubricant around the jar rim and ease it off slowly', correct: false },
+      { text: 'Break the jar immediately with a hammer', correct: false },
+      { text: 'Give him butter and spin him really fast', correct: false },
+    ]
+  },
+  {
+    animal: '🐻', name: 'Bernard the Bear',
+    problem: "He ate so much honey he has a severe allergic reaction — his face is swelling!",
+    options: [
+      { text: 'Antihistamines immediately and monitor closely for anaphylaxis', correct: true },
+      { text: 'Administer a steroid injection to reduce the swelling quickly', correct: false },
+      { text: 'Rub him with beeswax as a counter-irritant', correct: false },
+      { text: 'Give him more honey to balance it out', correct: false },
+    ]
+  },
+  {
+    animal: '🦔', name: 'Spike the Hedgehog',
+    problem: "He rolled into a ball and can't seem to uncurl — he's been like it for hours!",
+    options: [
+      { text: 'Keep him warm and quiet — investigate for neurological issues', correct: true },
+      { text: 'Check his temperature and give a mild muscle relaxant', correct: false },
+      { text: 'Blow air under him until he pops open', correct: false },
+      { text: 'Tickle him until he unrolls out of laughter', correct: false },
+    ]
+  },
+];
+
+const WRONG_PHRASES = [
+  "oh boy i am dying 😵",
+  "oh no no no... i am dying 💀",
+  "oh boy i am dying, this is the end 😩",
+  "oh dear, oh dear... i am dying 😢",
+  "i am DYING, this is not right at all! 😱",
+];
+
+const CORRECT_PHRASES = [
+  "oh my goodness you just saved my life you did! 🎉",
+  "oh my goodness you just saved my life you did, THANK YOU! 🥳",
+  "oh my goodness, i am saved! you just saved my life you did! ✨",
+  "oh my goodness you just saved my life you did, what a doctor! 🏆",
+  "you just saved my life you did! oh my goodness! 💖",
+];
+
+let correct = 0;
+let wrong = 0;
+let queue = [];
+let current = null;
+let answered = false;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function refillQueue() {
+  queue = shuffle(PATIENTS);
+}
+
+function startGame() {
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('play-screen').style.display = 'flex';
+  refillQueue();
+  nextPatient();
+}
+
+function nextPatient() {
+  if (queue.length === 0) refillQueue();
+  current = queue.pop();
+  answered = false;
+
+  // Shuffle options
+  const shuffledOptions = shuffle(current.options);
+
+  // Animal display
+  const animalEl = document.getElementById('animal-display');
+  document.getElementById('funeral-scene').classList.remove('visible');
+  document.getElementById('tombstone').classList.remove('visible');
+  animalEl.textContent = current.animal;
+  animalEl.style.animation = 'none';
+  animalEl.offsetHeight; // reflow
+  animalEl.style.animation = 'float 3s ease-in-out infinite';
+
+  // Speech bubble — greeting
+  const greetings = [
+    `Doctor, please help me! 🙏`,
+    `I need your help urgently, Doctor!`,
+    `Thank goodness you're here, Doc!`,
+    `Please Doctor, I'm not well at all!`,
+    `Help me Doctor, something's wrong!`,
+  ];
+  setSpeech(pick(greetings), '');
+
+  document.getElementById('animal-name').textContent = current.name;
+  document.getElementById('problem-text').textContent = current.problem;
+
+  // Build choice buttons
+  const choicesEl = document.getElementById('choices');
+  choicesEl.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  shuffledOptions.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<span class="letter">${letters[i]}.</span> ${opt.text}`;
+    btn.onclick = () => handleAnswer(btn, opt.correct, shuffledOptions, letters);
+    choicesEl.appendChild(btn);
+  });
+
+  document.getElementById('next-btn').style.display = 'none';
+  document.getElementById('stats').textContent = '';
+}
+
+function setSpeech(text, type) {
+  const bubble = document.getElementById('speech-bubble');
+  bubble.textContent = text;
+  bubble.className = 'speech-bubble';
+  if (type === 'wrong') bubble.classList.add('wrong');
+  if (type === 'correct') bubble.classList.add('correct');
+}
+
+function handleAnswer(clickedBtn, isCorrect, options, letters) {
+  if (answered) return;
+  answered = true;
+
+  const choicesEl = document.getElementById('choices');
+  const allBtns = choicesEl.querySelectorAll('.choice-btn');
+  const animalEl = document.getElementById('animal-display');
+
+  // Disable all buttons and reveal correct
+  allBtns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (options[i].correct) btn.classList.add('correct-ans');
+  });
+
+  if (isCorrect) {
+    correct++;
+    clickedBtn.classList.add('correct-ans');
+    setSpeech(pick(CORRECT_PHRASES), 'correct');
+    animalEl.style.animation = 'none';
+    animalEl.offsetHeight;
+    animalEl.style.animation = 'bounce 0.6s ease-in-out';
+    setTimeout(() => {
+      animalEl.style.animation = 'float 3s ease-in-out infinite';
+    }, 700);
+  } else {
+    wrong++;
+    clickedBtn.classList.add('wrong-ans');
+    setSpeech(pick(WRONG_PHRASES), 'wrong');
+    animalEl.style.animation = 'none';
+    animalEl.offsetHeight;
+    animalEl.style.animation = 'shake 0.5s ease-in-out';
+    setTimeout(() => {
+      animalEl.style.animation = 'none';
+      document.getElementById('funeral-scene').classList.add('visible');
+      document.getElementById('tombstone').classList.add('visible');
+    }, 500);
+  }
+
+  document.getElementById('score-correct').textContent = correct;
+  document.getElementById('score-wrong').textContent = wrong;
+  document.getElementById('next-btn').style.display = 'block';
+
+  const total = correct + wrong;
+  document.getElementById('stats').textContent =
+    total > 0 ? `${Math.round((correct / total) * 100)}% success rate over ${total} patient${total !== 1 ? 's' : ''}` : '';
+}
+</script>
+</body>
+</html>
