@@ -368,6 +368,36 @@
     from { opacity: 0; transform: translateY(20px) scale(0.5); }
     to   { opacity: 1; transform: translateY(0) scale(1); }
   }
+
+  #gif-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  #gif-overlay.visible {
+    display: flex;
+    animation: gifPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  #gif-overlay img {
+    max-width: min(420px, 90vw);
+    max-height: 70vh;
+    border-radius: 16px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+    display: none;
+  }
+
+  #gif-overlay img.visible { display: block; }
+
+  @keyframes gifPop {
+    from { opacity: 0; transform: scale(0.7); }
+    to   { opacity: 1; transform: scale(1); }
+  }
 </style>
 </head>
 <body>
@@ -409,6 +439,11 @@
     <button id="next-btn" onclick="nextPatient()">Next Patient ➡️</button>
     <div id="stats"></div>
   </div>
+</div>
+
+<div id="gif-overlay">
+  <img id="gif-saved" src="saved.gif" alt="">
+  <img id="gif-died"  src="died.gif"  alt="">
 </div>
 
 <script>
@@ -673,6 +708,7 @@ function nextPatient() {
   const animalEl = document.getElementById('animal-display');
   document.getElementById('funeral-scene').classList.remove('visible');
   document.getElementById('tombstone').classList.remove('visible');
+  hideGif();
   animalEl.textContent = current.animal;
   animalEl.style.animation = 'none';
   animalEl.offsetHeight; // reflow
@@ -739,6 +775,7 @@ function handleAnswer(clickedBtn, isCorrect, options, letters) {
     setTimeout(() => {
       animalEl.style.animation = 'float 3s ease-in-out infinite';
     }, 700);
+    showGif('saved', 2600);
   } else {
     wrong++;
     clickedBtn.classList.add('wrong-ans');
@@ -750,6 +787,7 @@ function handleAnswer(clickedBtn, isCorrect, options, letters) {
       animalEl.style.animation = 'none';
       document.getElementById('funeral-scene').classList.add('visible');
       document.getElementById('tombstone').classList.add('visible');
+      showGif('died', 4400);
     }, 500);
   }
 
@@ -760,6 +798,25 @@ function handleAnswer(clickedBtn, isCorrect, options, letters) {
   const total = correct + wrong;
   document.getElementById('stats').textContent =
     total > 0 ? `${Math.round((correct / total) * 100)}% success rate over ${total} patient${total !== 1 ? 's' : ''}` : '';
+}
+function showGif(type, duration) {
+  const overlay = document.getElementById('gif-overlay');
+  const savedImg = document.getElementById('gif-saved');
+  const diedImg  = document.getElementById('gif-died');
+  savedImg.classList.remove('visible');
+  diedImg.classList.remove('visible');
+  if (type === 'saved') savedImg.classList.add('visible');
+  else diedImg.classList.add('visible');
+  overlay.classList.add('visible');
+  clearTimeout(overlay._hideTimer);
+  overlay._hideTimer = setTimeout(hideGif, duration);
+}
+
+function hideGif() {
+  const overlay = document.getElementById('gif-overlay');
+  overlay.classList.remove('visible');
+  document.getElementById('gif-saved').classList.remove('visible');
+  document.getElementById('gif-died').classList.remove('visible');
 }
 </script>
 </body>
